@@ -2,6 +2,7 @@ package com.management.bus.bus_backend.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +31,7 @@ public class Bus {
 
     private LocalDateTime createdAt;
 
+    @Column(columnDefinition = "TEXT")
     private String features;
 
     private Boolean status;
