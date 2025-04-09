@@ -1,7 +1,5 @@
 package com.management.bus.bus_backend.controller;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.management.bus.bus_backend.dto.BusResponseDTO;
 import com.management.bus.bus_backend.service.BusService;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/bus")
+@CrossOrigin(origins = "http://localhost:5173")
 public class BusController {
 
     @Autowired
