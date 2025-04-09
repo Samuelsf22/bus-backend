@@ -1,8 +1,8 @@
 package com.management.bus.bus_backend.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.management.bus.bus_backend.dto.BusResponseDTO;
@@ -16,8 +16,8 @@ public class BusServiceImpl implements BusService {
     private BusRepository busRepository;
 
     @Override
-    public List<BusResponseDTO> getAllBuses() {
-        return busRepository.findAll().stream().map(BusResponseDTO::from).toList();
+    public Page<BusResponseDTO> getAllBuses(Pageable pageable) {
+        return busRepository.findAll(pageable).map(BusResponseDTO::from);
     }
 
     @Override
