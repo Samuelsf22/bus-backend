@@ -2,6 +2,8 @@ package com.management.bus.bus_backend.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +22,13 @@ public class BusController {
     private BusService busService;
 
     @GetMapping
-    public ResponseEntity<List<BusResponseDTO>> getAllBuses() {
-        List<BusResponseDTO> buses = busService.getAllBuses();
-        if (buses.isEmpty()) {
+    public ResponseEntity<Page<BusResponseDTO>> getAllBuses(Pageable pageable) {
+        Page<BusResponseDTO> buses = busService.getAllBuses(pageable);
+        if (buses.hasContent()) {
+            return ResponseEntity.ok(buses);
+        } else {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(buses);
     }
 
     @GetMapping("/{id}")
