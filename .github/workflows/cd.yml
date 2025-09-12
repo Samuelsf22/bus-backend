@@ -1,0 +1,61 @@
+name: Java Backend CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build with Maven
+        run: mvn clean package --no-transfer-progress
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Upload JAR to S3
+        run: |
+          JAR_PATH=$(find target -type f -name "*.jar" | head -n 1)
+          aws s3 cp "$JAR_PATH" s3://sm-bus/
+
+      - name: Deploy to Elastic Beanstalk
+        env:
+          AWS_REGION: us-east-1
+          S3_BUCKET: sm-bus
+          APP_NAME: sm-bus
+          ENV_NAME: sm-bus-env
+        run: |
+          JAR_PATH=$(find target -type f -name "*.jar" | head -n 1)
+          JAR_FILE=$(basename "$JAR_PATH")
+          VERSION_LABEL="v-$(date +%Y%m%d%H%M%S)"
+          aws elasticbeanstalk create-application-version \
+            --application-name "$APP_NAME" \
+            --version-label "$VERSION_LABEL" \
+            --source-bundle S3Bucket=$S3_BUCKET,S3Key=$JAR_FILE \
+            --region $AWS_REGION
+          aws elasticbeanstalk update-environment \
+            --environment-name "$ENV_NAME" \
+            --version-label "$VERSION_LABEL" \
+            --region $AWS_REGION
