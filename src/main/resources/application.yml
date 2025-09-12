@@ -14,3 +14,4 @@ spring:
             ddl-auto: update
         generate-ddl: false
         show-sql: true
+port: ${PORT:8080}
